@@ -1,9 +1,0 @@
-[package]
-
-name = "lesson_1"
-version = "0.0.1"
-authors = [ "Vilius Kazakauskas <vilius@gmail.com>" ]
-
-[[bin]]
-
-name = "lesson_1"
