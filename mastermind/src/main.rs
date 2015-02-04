@@ -42,7 +42,13 @@ fn main() {
 			}
 		};
 		
+		let mut guess_vec: Vec<&str> = Vec::new();
+		for letter in guess.graphemes(true) {
+			guess_vec.push(letter);
+		}
 		
+		println!("");
+		println!("{}", guess_answer_cmp_colour_place(guess_vec, answer.clone()));
 		
 		counter = counter + 1;
 		if counter > 10 {return;}
@@ -84,4 +90,29 @@ fn valid_colour_letter(letter: &str) -> bool {
 		"R" => true,
 		_ => false
 	}
+}
+
+fn guess_answer_cmp_colour_place(guess: Vec<&str>, answer: Vec<&str>) -> u32 {
+	let mut correct = 0;
+	
+	for i in 0..guess.len() {
+		if guess[i] == answer[i] {correct = correct + 1; }
+	}
+	
+	//let mut guess_letters = guess.graphemes(true);
+	//let mut answer_letters = answer.graphemes(true);
+	
+	//loop {
+	//	let guess_letter = match guess_letters.next() {
+	//		Some(letter) => letter,
+	//		None => { break; }
+	//	};
+	//	let answer_letter = match answer_letters.next() {
+	//		Some(letter) => letter,
+	//		None => { break; }
+	//	};
+	//	if guess_letter == answer_letter { correct = correct + 1; }
+	//}
+	
+	correct
 }
