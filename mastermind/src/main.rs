@@ -1,19 +1,19 @@
 use std::rand;
 use std::old_io;
-
-enum PlayerInput {
-	ValidInput(String),
-	ErrorReason(String)
-}
+use std::option;
+use std::result;
 
 fn main() {
     println!("Welcome to MASTERMIND");
 	println!("Available colours: G B Y R");
 	println!("");
 	
-	let mut answer: Vec<&str> = Vec::new();
-	for i in 0..4 {
-		answer.push(get_random_colour_letter());
+	let mut answer: [char; 4] = ['a'; 4];
+	for mut element in answer.iter_mut() {
+		*element = match get_random_colour_letter() {
+			Some(x) => x,
+			None => return
+		}
 	}
 	
 	print!("Answer is: ");
@@ -22,10 +22,12 @@ fn main() {
 	}
 	println!("");
 	
+	let mut board = Box::new(String::new());
 	let mut counter: i32 = 1;
+	*board = counter.to_string() + "...\t\t";
 	
 	loop {
-		print!("{}...\t\t", counter);
+		println!("\n{}\n", *board);
 		
 		let input = old_io::stdin()
 					.read_line()
@@ -33,52 +35,48 @@ fn main() {
 					.expect("Failed to read player input");
 		
 		let guess = match validate_player_input(input.trim()) {
-			PlayerInput::ErrorReason(error_string) => {
+			Err(error_string) => {
 				println!("{}", error_string);
 				continue;
 			},
-			PlayerInput::ValidInput(guess) => {
+			Ok(guess) => {
 				guess
 			}
 		};
 		
-		let mut guess_vec: Vec<&str> = Vec::new();
-		for letter in guess.graphemes(true) {
-			guess_vec.push(letter);
-		}
-		
-		println!("");
-		println!("{}", guess_answer_cmp_colour_place(guess_vec, answer.clone()));
+		let guess_vec = guess.chars().collect::<Vec<char>>();
+		let correct_colour_place = guess_answer_cmp_colour_place(&guess_vec, &answer);
 		
 		counter = counter + 1;
 		if counter > 10 {return;}
+		*board = (&*board).to_string() + guess + "\t" + &(correct_colour_place.to_string()) + "\n" + &(counter.to_string()) + "...\t\t";
 	};
 }
 
-fn get_random_colour_letter() -> &'static str {
+fn get_random_colour_letter() -> Option<char> {
 	unsigned_int_to_colour_letter((rand::random::<u32>() % 4) + 1)
 }
 
-fn unsigned_int_to_colour_letter(i: u32) -> &'static str {
+fn unsigned_int_to_colour_letter(i: u32) -> Option<char> {
 	match i {
-		1 => "G",
-		2 => "B",
-		3 => "Y",
-		4 => "R",
+		1 => Some('G'),
+		2 => Some('B'),
+		3 => Some('Y'),
+		4 => Some('R'),
 		_ => {
 			println!("ERROR: Cannot convert unsigned integer {} to a colour", i);
-			""
+			None
 		}
 	}
 }
 
-fn validate_player_input(input: &str) -> PlayerInput {
-	if input.len() != 4 { PlayerInput::ErrorReason("Length of guess must be 4".to_string()) }
+fn validate_player_input(input: &str) -> Result<&str, String> {
+	if input.len() != 4 { Err("Length of guess must be 4".to_string()) }
 	else {
 		for l in input.graphemes(true) {
-			if valid_colour_letter(l) == false { return PlayerInput::ErrorReason(format!("Invalid colour letter {}", l)); }
+			if valid_colour_letter(l) == false { return Err(format!("Invalid colour letter {}", l)); }
 		}
-		PlayerInput::ValidInput(input.to_string())
+		Ok(input)
 	}
 }
 
@@ -92,27 +90,12 @@ fn valid_colour_letter(letter: &str) -> bool {
 	}
 }
 
-fn guess_answer_cmp_colour_place(guess: Vec<&str>, answer: Vec<&str>) -> u32 {
+fn guess_answer_cmp_colour_place(guess: &[char], answer: &[char]) -> u32 {
 	let mut correct = 0;
 	
 	for i in 0..guess.len() {
-		if guess[i] == answer[i] {correct = correct + 1; }
+		if guess[i] == answer[i] { correct = correct + 1; }
 	}
-	
-	//let mut guess_letters = guess.graphemes(true);
-	//let mut answer_letters = answer.graphemes(true);
-	
-	//loop {
-	//	let guess_letter = match guess_letters.next() {
-	//		Some(letter) => letter,
-	//		None => { break; }
-	//	};
-	//	let answer_letter = match answer_letters.next() {
-	//		Some(letter) => letter,
-	//		None => { break; }
-	//	};
-	//	if guess_letter == answer_letter { correct = correct + 1; }
-	//}
 	
 	correct
 }
