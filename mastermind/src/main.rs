@@ -1,7 +1,12 @@
+#![feature(core)]
+#![feature(io)]
+#![feature(rand)]
+#![feature(collections)]
+
 use std::rand;
 use std::old_io;
-use std::option;
-use std::result;
+use std::collections::HashSet;
+use core::num::SignedInt;
 
 fn main() {
     println!("Welcome to MASTERMIND");
@@ -9,25 +14,21 @@ fn main() {
 	println!("");
 	
 	let mut answer: [char; 4] = ['a'; 4];
-	for mut element in answer.iter_mut() {
+	for element in answer.iter_mut() {
 		*element = match get_random_colour_letter() {
 			Some(x) => x,
 			None => return
 		}
 	}
-	
-	print!("Answer is: ");
-	for element in answer.iter() {
-		print!("{}", element);
-	}
-	println!("");
+	let mut sorted_answer = answer.clone();
+	sorted_answer.sort();
 	
 	let mut board = Box::new(String::new());
 	let mut counter: i32 = 1;
-	*board = counter.to_string() + "...\t\t";
+	//*board = counter.to_string() + "...\t\t";
 	
 	loop {
-		println!("\n{}\n", *board);
+		print!("\n{}\n\nGUESS:\t\t", *board);
 		
 		let input = old_io::stdin()
 					.read_line()
@@ -44,12 +45,19 @@ fn main() {
 			}
 		};
 		
-		let guess_vec = guess.chars().collect::<Vec<char>>();
+		let mut guess_vec = guess.chars().collect::<Vec<char>>();
 		let correct_colour_place = guess_answer_cmp_colour_place(&guess_vec, &answer);
 		
+		if correct_colour_place == 4 {
+			println!("CORRECT!");
+			return;
+		}
+		
+		let correct_colour = guess_answer_cmp_colour(&guess_vec, &answer);
+		
+		*board = (&*board).to_string() + &(counter.to_string()) + "...\t\t" + guess + "\t" + &(correct_colour_place.to_string()) + "/" + &(correct_colour.to_string()) + "\n";
 		counter = counter + 1;
 		if counter > 10 {return;}
-		*board = (&*board).to_string() + guess + "\t" + &(correct_colour_place.to_string()) + "\n" + &(counter.to_string()) + "...\t\t";
 	};
 }
 
@@ -98,4 +106,19 @@ fn guess_answer_cmp_colour_place(guess: &[char], answer: &[char]) -> u32 {
 	}
 	
 	correct
+}
+
+fn guess_answer_cmp_colour(guess: &[char], answer: &[char]) -> u32 {
+	let mut correct = 0;
+	let mut checked: HashSet<char> = HashSet::new();
+	
+	for guess_el in guess.iter() {
+		if !checked.contains(guess_el) {
+			let g_amount: i32 = guess.iter().filter(|&x| x == guess_el).fold(0, |sum, _| sum + 1);
+			let a_amount: i32 = answer.iter().filter(|&x| x == guess_el).fold(0, |sum, _| sum + 1);
+			let diff = (g_amount - a_amount);
+			correct = correct + diff.abs();
+			checked.insert(guess_el);
+		}
+	}
 }
