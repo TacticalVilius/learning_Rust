@@ -1,4 +1,3 @@
-#![feature(core)]
 #![feature(io)]
 #![feature(rand)]
 #![feature(collections)]
@@ -6,7 +5,7 @@
 use std::rand;
 use std::old_io;
 use std::collections::HashSet;
-use core::num::SignedInt;
+use std::cmp::min;
 
 fn main() {
     println!("Welcome to MASTERMIND");
@@ -45,7 +44,7 @@ fn main() {
 			}
 		};
 		
-		let mut guess_vec = guess.chars().collect::<Vec<char>>();
+		let guess_vec = guess.chars().collect::<Vec<char>>();
 		let correct_colour_place = guess_answer_cmp_colour_place(&guess_vec, &answer);
 		
 		if correct_colour_place == 4 {
@@ -53,7 +52,9 @@ fn main() {
 			return;
 		}
 		
-		let correct_colour = guess_answer_cmp_colour(&guess_vec, &answer);
+		let mut correct_colour = guess_answer_cmp_colour(&guess_vec, &answer);
+		if correct_colour > correct_colour_place { correct_colour = correct_colour - correct_colour_place; }
+		else { correct_colour = 0; }
 		
 		*board = (&*board).to_string() + &(counter.to_string()) + "...\t\t" + guess + "\t" + &(correct_colour_place.to_string()) + "/" + &(correct_colour.to_string()) + "\n";
 		counter = counter + 1;
@@ -109,16 +110,16 @@ fn guess_answer_cmp_colour_place(guess: &[char], answer: &[char]) -> u32 {
 }
 
 fn guess_answer_cmp_colour(guess: &[char], answer: &[char]) -> u32 {
-	let mut correct = 0;
+	let mut correct:u32 = 0;
 	let mut checked: HashSet<char> = HashSet::new();
 	
 	for guess_el in guess.iter() {
 		if !checked.contains(guess_el) {
-			let g_amount: i32 = guess.iter().filter(|&x| x == guess_el).fold(0, |sum, _| sum + 1);
-			let a_amount: i32 = answer.iter().filter(|&x| x == guess_el).fold(0, |sum, _| sum + 1);
-			let diff = (g_amount - a_amount);
-			correct = correct + diff.abs();
-			checked.insert(guess_el);
+			let g_amount = guess.iter().filter(|&x| x == guess_el).fold(0, |sum, _| sum + 1);
+			let a_amount = answer.iter().filter(|&x| x == guess_el).fold(0, |sum, _| sum + 1);
+			correct = correct + min(g_amount, a_amount);
+			checked.insert(*guess_el);
 		}
 	}
+	correct
 }
