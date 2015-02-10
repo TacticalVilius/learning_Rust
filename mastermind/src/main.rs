@@ -101,7 +101,7 @@ fn request_colour_num(max: u32) -> u32 {
 			}
 		};
 		if input_num > max || input_num < 1 {
-			println!("Number on of colours must be between 1 and {}", max);
+			println!("Number of colours must be between 1 and {}", max);
 			continue;
 		}
 		else {
