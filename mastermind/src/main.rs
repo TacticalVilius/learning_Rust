@@ -12,7 +12,7 @@ use std::iter::repeat;
 fn main() {
 	let all_colours = ['W', 'Y', 'O', 'R', 'G', 'B', 'Z', 'P', 'U', 'A'];
 
-    println!("Welcome to MASTERMIND");
+	println!("Welcome to MASTERMIND");
 	
 	let colour_num = request_colour_num(all_colours.len() as u32) as usize;
 	let mut used_colours: Vec<char> = repeat(' ').take(colour_num).collect();
