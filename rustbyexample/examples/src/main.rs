@@ -2,6 +2,8 @@
 use std::fmt;
 
 fn main() {
+    //_types_inference();
+    //_types_literals();
     //_types_casting();
     //_types();
     //_variable_bindings_declare_first();
@@ -13,6 +15,31 @@ fn main() {
     //_formatted_print_debug();
     //_formatted_print();
     //_hello_world();
+}
+
+fn _types_inference() {
+    let elem = 5_u8;
+
+    let mut vec = Vec::new();
+
+    vec.push(elem);
+
+    println!("{:?}", vec);
+}
+
+fn _types_literals() {
+    let x = 1u8;
+    let y = 2u32;
+    let z = 3f32;
+
+    let i = 1;
+    let f = 1.0;
+
+    println!("size of 'x' in bytes: {}", std::mem::size_of_val(&x));
+    println!("size of 'y' in bytes: {}", std::mem::size_of_val(&y));
+    println!("size of 'z' in bytes: {}", std::mem::size_of_val(&z));
+    println!("size of 'i' in bytes: {}", std::mem::size_of_val(&i));
+    println!("size of 'f' in bytes: {}", std::mem::size_of_val(&f));
 }
 
 fn _types_casting() {
