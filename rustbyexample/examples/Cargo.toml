@@ -1,0 +1,4 @@
+[package]
+name = "examples"
+version = "0.0.1"
+authors = ["Vilius <v.kazakauskas@sportradar.com>"]
